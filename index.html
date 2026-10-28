@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business Champion of the Week | Kulzzy Radio</title>
+<style>
+:root{--n:#06122a;--n2:#0c2045;--g:#ffd700}*{box-sizing:border-box}body{margin:0;background:var(--n);color:#fff;font-family:Arial,sans-serif}header{text-align:center;padding:28px 15px;background:linear-gradient(135deg,#06122a,#173565);border-bottom:2px solid var(--g)}.brand{color:var(--g);font-weight:900;letter-spacing:2px;font-size:13px}h1{color:var(--g);font-size:clamp(26px,6vw,42px)}header p{line-height:1.6;max-width:700px;margin:auto}.wrap{max-width:1100px;margin:auto;padding:16px}.panel{background:var(--n2);border:1px solid #29416b;border-radius:14px;padding:16px;margin:15px 0}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}h2{color:var(--g);font-size:20px}.status,.notice{color:#c4d2e8;font-size:13px;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:15px}.card{background:#0a1934;border:1px solid #344b71;border-radius:14px;overflow:hidden}.photo{width:100%;height:210px;object-fit:cover;background:#152849;display:block;cursor:pointer}.body{padding:14px}.rank{display:inline-block;background:var(--g);color:#071326;font-weight:900;border-radius:20px;padding:5px 10px;font-size:12px}.business{font-size:20px;margin:10px 0}.desc{color:#d0d9e8;font-size:14px;line-height:1.5;white-space:pre-wrap}.count{color:var(--g);font-weight:800;margin:12px 0}.btn{display:inline-flex;justify-content:center;align-items:center;border:0;border-radius:8px;padding:11px 13px;background:var(--g);color:#071326;text-decoration:none;font-weight:800;cursor:pointer;margin:3px 3px 0 0}.alt{background:#18345d;color:#fff;border:1px solid #46618a}.progress{height:5px;background:#223959;border-radius:10px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;width:0;background:var(--g)}.empty{text-align:center;padding:30px;color:#bdc9dc}footer{text-align:center;padding:22px;color:#c4cee0;border-top:1px solid #253a5e;font-size:13px}footer a{color:var(--g)}
+</style></head><body>
+<header><h1>🏆 BUSINESS CHAMPION OF THE WEEK</h1><p><strong>SUPPORT A BUSINESS. HELP IT SHINE.</strong><br>Explore the participating businesses, learn about what they offer, and share your favourites with friends and family.</p></header>
+<main class="wrap"><section class="panel"><div class="row"><div><h2 id="ct">Loading competition…</h2><div class="status" id="cs">Connecting to the competition board.</div></div><button class="btn alt" id="refresh">Refresh rankings</button></div><p class="notice">A view is counted only after the business picture remains open for at least 5 seconds. Repeat views from the same browser for the same business and competition are limited. Please support businesses fairly.</p></section>
+<div class="row"><h2>🏅 Business Leaderboard</h2><span class="status" id="total"></span></div><section id="grid" class="grid"><div class="empty">Loading businesses…</div></section></main>
+<footer>STAY TUNED IN · Kulzzy Radio Network · Celebrating Lives Everyday</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const URL="https://qliohhpxpcybawkkuwra.supabase.co",KEY="sb_publishable_p25JoH3NXHjBO2gRBlfgAQ_GejS3jtr";
+const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let db=null;
+function showConnectionError(message){$("ct").textContent="Competition board unavailable";$("cs").textContent=message;$("grid").innerHTML='<div class="empty">'+esc(message)+' Please refresh the page or try again later.</div>';}
+if(window.supabase&&typeof window.supabase.createClient==="function"){
+  db=window.supabase.createClient(URL,KEY);
+}else{
+  showConnectionError("The database library did not load. Check your internet connection.");
+}
+function uuid(){return crypto.randomUUID?crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{let r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16)})}
+let visitor=localStorage.getItem("bc_visitor_key");if(!visitor){visitor=uuid();localStorage.setItem("bc_visitor_key",visitor)}let comp=null, running=new Set();
+async function load(){
+ if(!db){showConnectionError("The database connection is not ready.");return}
+ const grid=$("grid");comp=null;$("ct").textContent="Loading competition…";$("cs").textContent="Connecting to the competition board.";grid.innerHTML='<div class="empty">Loading businesses…</div>';
+ try{
+  // Show an active competition as soon as the administrator publishes it,
+  // including before its scheduled start time.
+  const q=await db.from("bc_competitions").select("id,title,starts_at,ends_at,status,winner_business_id,created_at").eq("status","active").order("created_at",{ascending:false}).limit(1);
+  if(q.error)throw q.error;
+  comp=q.data?.[0]||null;
+  if(!comp){$("ct").textContent="No active competition yet";$("cs").textContent="The administrator will publish the next competition here.";grid.innerHTML='<div class="empty">No active competition right now. Please check again soon.</div>';$('total').textContent="";return}
+  const now=new Date(),startAt=new Date(comp.starts_at),endAt=new Date(comp.ends_at);
+  $("ct").textContent=comp.title||"Business Champion of the Week";
+  $("cs").textContent=(now<startAt?"Competition starts "+startAt.toLocaleString():now>endAt?"Competition ended "+endAt.toLocaleString():"Competition is live · ends "+endAt.toLocaleString());
+
+  // Load businesses directly so a problem in the leaderboard view cannot
+  // leave the entire public page blank or stuck loading.
+  const br=await db.from("bc_businesses").select("id,business_name,whatsapp_number,description,image_url,advertisement_url,is_active,created_at").eq("is_active",true).order("created_at",{ascending:false});
+  if(br.error)throw br.error;
+  let rows=(br.data||[]).map(b=>({...b,business_id:b.id,competition_id:comp.id,valid_clicks:0}));
+  // Leaderboard counts are optional: still display businesses if this view is
+  // unavailable or its schema differs.
+  try{
+   const lr=await db.from("bc_leaderboard").select("business_id,competition_id,valid_clicks").eq("competition_id",comp.id);
+   if(!lr.error&&Array.isArray(lr.data)){
+    const counts=new Map(lr.data.map(x=>[String(x.business_id),Number(x.valid_clicks||0)]));
+    rows=rows.map(b=>({...b,valid_clicks:counts.get(String(b.business_id))||0}));
+   }else if(lr.error)console.warn("Leaderboard counts unavailable; showing businesses with zero counts:",lr.error.message);
+  }catch(le){console.warn("Leaderboard counts unavailable:",le)}
+  rows.sort((a,b)=>Number(b.valid_clicks||0)-Number(a.valid_clicks||0));
+  $("total").textContent=rows.length+" participating business"+(rows.length===1?"":"es");
+  if(!rows.length){grid.innerHTML='<div class="empty">No active businesses have been published yet.</div>';return}
+  const live=now>=startAt&&now<=endAt;
+  grid.innerHTML=rows.map((b,i)=>'<article class="card"><img class="photo" src="'+esc(b.image_url||"")+'" alt="'+esc(b.business_name)+'" data-view="'+esc(b.business_id)+'"><div class="body"><span class="rank">'+(i===0?"🥇 TOP RANK":"RANK #"+(i+1))+'</span><h3 class="business">'+esc(b.business_name)+'</h3><div class="desc">'+esc(b.description||"Discover this business.")+'</div><div class="count">⭐ Valid views: '+Number(b.valid_clicks||0).toLocaleString()+'</div><button class="btn" data-view="'+esc(b.business_id)+'" '+(!live?'disabled title="View counting opens when the competition starts"':'')+'>'+(!live?(now<startAt?"Voting opens at start time":"Competition ended"):'View business (5 sec)')+'</button>'+(b.whatsapp_number?'<a class="btn alt" target="_blank" rel="noopener" href="https://wa.me/'+encodeURIComponent(String(b.whatsapp_number).replace(/[^0-9]/g,""))+'">WhatsApp</a>':"")+'<button class="btn alt" data-share="'+esc(b.business_id)+'">Share</button><div class="status" id="s-'+esc(b.business_id)+'">'+(live?'Keep this page visible for 5 seconds.':(now<startAt?'Business is published; view counting starts with the competition.':'This competition has ended.'))+'</div><div class="progress"><span id="p-'+esc(b.business_id)+'"></span></div>'+(b.advertisement_url?'<p><a target="_blank" rel="noopener" href="'+esc(b.advertisement_url)+'">Visit business website</a></p>':"")+'</div></article>').join("");
+  grid.querySelectorAll("img.photo").forEach(img=>img.addEventListener("error",()=>{img.style.display="none"},{once:true}));
+  grid.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",()=>startView(el.dataset.view)));
+  grid.querySelectorAll("[data-share]").forEach(el=>el.addEventListener("click",()=>share(el.dataset.share,rows)));
+ }catch(e){console.error(e);$("ct").textContent="Unable to load competition";grid.innerHTML='<div class="empty">'+esc(e.message||"Could not load the leaderboard.")+'</div>';$("cs").textContent="Database error. Check public read permissions for bc_competitions and bc_businesses."}
+}
+async function startView(id){if(!comp||running.has(id))return;const now=new Date();if(now<new Date(comp.starts_at)||now>new Date(comp.ends_at))return;running.add(id);let status=$("s-"+id),bar=$("p-"+id);status.textContent="Please keep this page visible for 5 seconds…";let {data:sid,error}=await db.rpc("bc_start_click",{p_competition_id:comp.id,p_business_id:id,p_visitor_key:visitor});if(error||!sid){running.delete(id);status.textContent="Could not start tracking. Please refresh and try again.";console.error(error);return}let start=Date.now(),timer=setInterval(async()=>{if(document.visibilityState!=="visible"){clearInterval(timer);running.delete(id);status.textContent="View paused because the page was hidden. Tap again to restart.";return}let pct=Math.min(100,(Date.now()-start)/50);bar.style.width=pct+"%";if(pct>=100){clearInterval(timer);running.delete(id);let result=await db.rpc("bc_complete_click",{p_session_id:sid});if(result.error){status.textContent="Could not confirm this view.";console.error(result.error)}else if(result.data){status.textContent="✅ View checked. Thank you for supporting this business!";await load()}else status.textContent="This view was not counted. You may already have viewed this business in this competition."}},100)}
+async function share(id,rows){let b=rows.find(x=>x.business_id===id);if(!b)return;let msg="Please support "+b.business_name+" in Kulzzy Radio's Business Champion of the Week! "+location.href;if(navigator.share){try{await navigator.share({title:b.business_name,text:msg,url:location.href});return}catch(e){if(e.name==="AbortError")return}}window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank","noopener")}
+$("refresh").addEventListener("click",load);load();
+</script></body></html>
