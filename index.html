@@ -1,1 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06122a">
 
+  <title>Business Champion of the Week | Kulzzy Radio</title>
+
+  <meta name="description"
+        content="Discover, support and celebrate outstanding businesses with Kulzzy Radio Network.">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --navy: #06122a;
+      --navy-light: #102448;
+      --gold: #ffd700;
+      --white: #ffffff;
+      --muted: #c5cede;
+      --green: #16874b;
+      --border: rgba(255, 215, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--white);
+      background: var(--navy);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .top-bar {
+      padding: 10px 15px;
+      text-align: center;
+      color: var(--navy);
+      background: var(--gold);
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    header {
+      padding: 30px 16px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at top, #18345d 0%, var(--navy) 72%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 8px auto;
+      color: var(--gold);
+      font-size: clamp(27px, 6vw, 46px);
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      max-width: 650px;
+      margin: 15px auto 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero {
+      max-width: 1000px;
+      margin: 22px auto 0;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .hero strong {
+      display: block;
+      color: var(--gold);
+      font-size: 19px;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      width: min(1150px, 100%);
+      margin: auto;
+      padding: 24px 14px 45px;
+    }
+
+    .competition-box {
+      margin-bottom: 24px;
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--navy-light);
+    }
+
+    .competition-box h2 {
+      margin: 0 0 5px;
+      color: var(--gold);
+      font-size: 21px;
+    }
+
+    .competition-box p {
+      margin: 5px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 25px 0 15px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--gold);
+      font-size: 23px;
+    }
+
+    .count-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .business-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 18px;
+    }
+
+    .business-card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: #0b1a35;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .business-image {
+      display: block;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      background: #132546;
+    }
+
+    .image-placeholder {
+      display: flex;
+      height: 180px;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      background: #102448;
+      font-size: 48px;
+    }
+
+    .business-content {
+      padding: 16px;
+    }
+
+    .business-content h3 {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 21px;
+      overflow-wrap: anywhere;
+    }
+
+    .business-description {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .views {
+      margin: 14px 0;
+      padding: 10px;
+      border-radius: 9px;
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.08);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .business-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 43px;
+      padding: 10px;
+      border: 0;
+      border-radius: 8px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .btn-gold {
+      color: var(--navy);
+      background: var(--gold);
+    }
+
+    .btn-green {
+      color: white;
+      background: var(--green);
+    }
+
+    .btn-outline {
+      color: var(--gold);
+      background: transparent;
+      border: 1px solid var(--gold);
+    }
+
+    .advert-link {
+      display: block;
+      margin-top: 10px;
+      text-align: center;
+      color: var(--gold);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      padding: 25px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status.error {
+      color: #ffb8b8;
+    }
+
+    .status strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--gold);
+      font-size: 18px;
+    }
+
+    .how-it-works {
+      margin-top: 32px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .how-it-works h2 {
+      margin-top: 0;
+      color: var(--gold);
+    }
+
+    .how-it-works li {
+      margin: 9px 0;
+      color: var(--muted);
+    }
+
+    footer {
+      padding: 25px 15px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      background: #040c1b;
+    }
+
+    footer strong {
+      color: var(--gold);
+    }
+
+    footer p {
+      margin: 6px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .refresh-button {
+      margin-top: 12px;
+      padding: 9px 14px;
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      color: var(--gold);
+      background: transparent;
+    }
+
+    @media (max-width: 380px) {
+      .business-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .business-image {
+        height: 190px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-bar">
+    KULZZY RADIO NETWORK • CELEBRATING BUSINESSES
+  </div>
+
+  <header>
+    <p class="brand">KULZZY RADIO NETWORK PRESENTS</p>
+
+    <h1>BUSINESS CHAMPION<br>OF THE WEEK</h1>
+
+    <p class="subtitle">
+      Discover businesses, explore their services, and help celebrate
+      the businesses making a difference.
+    </p>
+
+    <div class="hero">
+      <strong>SUPPORT A BUSINESS. HELP IT SHINE.</strong>
+      <p>
+        Explore the participating businesses, learn about what they offer,
+        and share your favourites with friends and family.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="competition-box" aria-live="polite">
+      <h2 id="competitionTitle">Business Champion of the Week</h2>
+      <p id="competitionDates">
+        Discover participating businesses below.
+      </p>
+      <p id="competitionStatus"></p>
+    </section>
+
+    <div class="section-heading">
+      <h2>Participating Businesses</h2>
+      <span class="count-label" id="businessCount">Loading businesses…</span>
+    </div>
+
+    <div id="businessStatus" class="status" aria-live="polite">
+      <strong>Loading…</strong>
+      Please wait while we load the participating businesses.
+    </div>
+
+    <section id="businessGrid" class="business-grid" aria-label="Participating businesses"></section>
+
+    <section class="how-it-works">
+      <h2>How It Works</h2>
+      <ol>
+        <li>Explore the participating businesses.</li>
+        <li>Read each business description and view its available information.</li>
+        <li>Contact a business directly using its published WhatsApp number.</li>
+        <li>Share a business with friends and family to help more people discover it.</li>
+        <li>Follow the rankings displayed on this page during the competition.</li>
+      </ol>
+      <p class="subtitle">
+        Rankings depend on the valid-view records available for the active
+        competition. Repeated or unverified views may not count.
+      </p>
+    </section>
+
+    <div style="text-align:center">
+      <button type="button" class="refresh-button" id="refreshButton">
+        Refresh Businesses
+      </button>
+    </div>
+  </main>
+
+  <footer>
+    <strong>KULZZY RADIO NETWORK</strong>
+    <p>Celebrating Lives Everyday</p>
+    <p>Business Champion of the Week</p>
+    <p>Discover. Support. Celebrate.</p>
+  </footer>
+
+  <script>
+    /*
+      KULZZY RADIO NETWORK
+      BUSINESS CHAMPION OF THE WEEK — PUBLIC PAGE
+
+      This page deliberately contains NO administrator login or link.
+      Administrator management belongs on the separate admin.html page.
+    */
+
+    const SUPABASE_URL = "https://qliohhpxpcybawkkuwra.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_p25JoH3NXHjBO2gRBlfgAQ_GejS3jtr";
+
+    const supabaseClient =
+      window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const grid = document.getElementById("businessGrid");
+    const businessStatus = document.getElementById("businessStatus");
+    const businessCount = document.getElementById("businessCount");
+
+    let activeCompetitionId = null;
+    let businesses = [];
+
+    function safeText(value) {
+      return String(value ?? "");
+    }
+
+    function normalizeWebsite(url) {
+      const value = safeText(url).trim();
+
+      if (!value) return "";
+
+      try {
+        const normalized = /^https?:\/\//i.test(value)
+          ? value
+          : "https://" + value;
+
+        const parsed = new URL(normalized);
+
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+          return "";
+        }
+
+        return parsed.href;
+      } catch {
+        return "";
+      }
+    }
+
+    function normalizeWhatsApp(number) {
+      let digits = safeText(number).replace(/\D/g, "");
+
+      // Convert a Nigerian number written as 080... to 23480...
+      if (digits.startsWith("0") && digits.length === 11) {
+        digits = "234" + digits.slice(1);
+      }
+
+      // A WhatsApp link requires a full international phone number.
+      if (digits.length < 8 || digits.length > 15) {
+        return "";
+      }
+
+      return "https://wa.me/" + digits;
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) return "";
+
+      return date.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+
+      if (className) node.className = className;
+
+      if (text !== undefined) {
+        node.textContent = safeText(text);
+      }
+
+      return node;
+    }
+
+    function makeLink(label, url, className, newTab = true) {
+      const link = element("a", "btn " + className, label);
+      link.href = url;
+
+      if (newTab) {
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      }
+
+      return link;
+    }
+
+    function showStatus(title, message, isError = false) {
+      businessStatus.replaceChildren();
+
+      const heading = element("strong", "", title);
+      const paragraph = element("p", "", message);
+
+      businessStatus.append(heading, paragraph);
+      businessStatus.classList.toggle("error", isError);
+      businessStatus.style.display = "block";
+    }
+
+    async function loadCompetition() {
+      const now = new Date().toISOString();
+
+      const { data, error } = await supabaseClient
+        .from("bc_competitions")
+        .select("id,title,starts_at,ends_at,status")
+        .eq("status", "active")
+        .lte("starts_at", now)
+        .gte("ends_at", now)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error("Competition loading error:", error);
+        activeCompetitionId = null;
+        document.getElementById("competitionTitle").textContent =
+          "Business Champion of the Week";
+        document.getElementById("competitionDates").textContent =
+          "Competition details are temporarily unavailable.";
+        document.getElementById("competitionStatus").textContent = "";
+        return;
+      }
+
+      const competition = data && data.length ? data[0] : null;
+
+      if (!competition) {
+        activeCompetitionId = null;
+        document.getElementById("competitionTitle").textContent =
+          "Business Champion of the Week";
+        document.getElementById("competitionDates").textContent =
+          "There is no active competition at the moment.";
+        document.getElementById("competitionStatus").textContent =
+          "Please check again later.";
+        return;
+      }
+
+      activeCompetitionId = competition.id;
+
+      document.getElementById("competitionTitle").textContent =
+        competition.title || "Business Champion of the Week";
+
+      const start = formatDate(competition.starts_at);
+      const end = formatDate(competition.ends_at);
+
+      document.getElementById("competitionDates").textContent =
+        start && end
+          ? "Competition period: " + start + " – " + end
+          : "Explore the businesses participating in this competition.";
+
+      document.getElementById("competitionStatus").textContent =
+        "Competition is active.";
+    }
+
+    async function recordValidView(businessId, card) {
+      if (!activeCompetitionId) return;
+
+      // Each browser receives a visitor identifier. This is not a replacement
+      // for server-side validation or database rate limits.
+      const storageKey = "kulzzy_bc_visitor_id";
+
+      let visitorId = "";
+
+      try {
+        visitorId = localStorage.getItem(storageKey) || "";
+
+        if (!visitorId) {
+          visitorId = crypto.randomUUID();
+          localStorage.setItem(storageKey, visitorId);
+        }
+      } catch (error) {
+        console.warn("Visitor storage unavailable:", error);
+        return;
+      }
+
+      const { data: sessionId, error: startError } = await supabaseClient
+        .rpc("bc_start_click", {
+          p_competition_id: activeCompetitionId,
+          p_business_id: businessId,
+          p_visitor_key: visitorId
+        });
+
+      if (startError || !sessionId) {
+        if (startError) {
+          console.warn("Could not start view session:", startError.message);
+        }
+        return;
+      }
+
+      // The business card must remain visible for five seconds.
+      // The server must independently validate the session before counting it.
+      let completed = false;
+
+      const observer = new IntersectionObserver(async entries => {
+        const entry = entries[0];
+
+        if (!entry || !entry.isIntersecting || completed) return;
+
+        completed = true;
+        observer.disconnect();
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        const { data, error } = await supabaseClient
+          .rpc("bc_complete_click", {
+            p_session_id: sessionId
+          });
+
+        if (error) {
+          console.warn("View was not confirmed:", error.message);
+          return;
+        }
+
+        if (data === true) {
+          await loadBusinesses();
+        }
+      }, {
+        threshold: 0.5
+      });
+
+      observer.observe(card);
+    }
+
+    async function shareBusiness(business) {
+      const businessName = safeText(business.business_name);
+      const message =
+        "Discover " + businessName +
+        " on Kulzzy Radio's Business Champion of the Week! " +
+        window.location.href;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: businessName,
+            text: message,
+            url: window.location.href
+          });
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(message);
+          alert("Business details copied. You can now share them with friends.");
+        } else {
+          window.open(
+            "https://wa.me/?text=" + encodeURIComponent(message),
+            "_blank",
+            "noopener,noreferrer"
+          );
+        }
+      } catch (error) {
+        if (error && error.name !== "AbortError") {
+          console.warn("Sharing was not completed:", error);
+        }
+      }
+    }
+
+    function renderBusiness(business, index) {
+      const card = element("article", "business-card");
+
+      if (business.image_url) {
+        const image = element("img", "business-image");
+        image.src = business.image_url;
+        image.alt = safeText(business.business_name) + " business photo";
+        image.loading = "lazy";
+
+        image.onerror = () => {
+          const placeholder = element("div", "image-placeholder", "🏢");
+          image.replaceWith(placeholder);
+        };
+
+        card.appendChild(image);
+      } else {
+        card.appendChild(element("div", "image-placeholder", "🏢"));
+      }
+
+      const content = element("div", "business-content");
+
+      content.appendChild(
+        element("h3", "", (index + 1) + ". " + safeText(business.business_name))
+      );
+
+      if (business.description) {
+        content.appendChild(
+          element("p", "business-description", business.description)
+        );
+      }
+
+      const viewNumber = Number(business.valid_clicks || 0);
+
+      content.appendChild(
+        element(
+          "div",
+          "views",
+          "🏆 Valid views: " + viewNumber.toLocaleString()
+        )
+      );
+
+      const actions = element("div", "business-actions");
+
+      const whatsapp = normalizeWhatsApp(business.whatsapp_number);
+
+      if (whatsapp) {
+        actions.appendChild(
+          makeLink("WhatsApp Business", whatsapp, "btn-green")
+        );
+      } else {
+        const unavailable = element("span", "btn btn-outline", "Contact details unavailable");
+        actions.appendChild(unavailable);
+      }
+
+      const shareButton = element("button", "btn btn-gold", "Share Business");
+      shareButton.type = "button";
+      shareButton.addEventListener("click", () => shareBusiness(business));
+      actions.appendChild(shareButton);
+
+      content.appendChild(actions);
+
+      const advertUrl = normalizeWebsite(business.advertisement_url);
+
+      if (advertUrl) {
+        const advertLink = element("a", "advert-link", "Visit Business Website / Advert ↗");
+        advertLink.href = advertUrl;
+        advertLink.target = "_blank";
+        advertLink.rel = "noopener noreferrer";
+        content.appendChild(advertLink);
+      }
+
+      card.appendChild(content);
+
+      if (business.id) {
+        recordValidView(business.id, card);
+      }
+
+      return card;
+    }
+
+    async function loadBusinesses() {
+      businessStatus.style.display = "block";
+      showStatus("Loading businesses…", "Please wait.");
+      businessCount.textContent = "Loading…";
+      grid.replaceChildren();
+
+      await loadCompetition();
+
+      if (!activeCompetitionId) {
+        businessCount.textContent = "0 businesses";
+        showStatus(
+          "No active competition",
+          "Participating businesses will appear here when a competition is active."
+        );
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("bc_leaderboard")
+        .select("*")
+        .eq("competition_id", activeCompetitionId)
+        .order("valid_clicks", { ascending: false });
+
+      if (error) {
+        console.error("Business loading error:", error);
+        businessCount.textContent = "Unable to load";
+        showStatus(
+          "Businesses could not be loaded",
+          "The database may need a permissions or configuration check. Please try refreshing.",
+          true
+        );
+        return;
+      }
+
+      businesses = data || [];
+
+      if (businesses.length === 0) {
+        businessCount.textContent = "0 businesses";
+        showStatus(
+          "No participating businesses yet",
+          "Please check back when businesses have been added to the active competition."
+        );
+        return;
+      }
+
+      businessStatus.style.display = "none";
+      businessCount.textContent =
+        businesses.length + (businesses.length === 1 ? " business" : " businesses");
+
+      businesses.forEach((business, index) => {
+        grid.appendChild(renderBusiness(business, index));
+      });
+    }
+
+    document.getElementById("refreshButton").addEventListener("click", () => {
+      loadBusinesses();
+    });
+
+    loadBusinesses();
+  </script>
+</body>
+</html>
