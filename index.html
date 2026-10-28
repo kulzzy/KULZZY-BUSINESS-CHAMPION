@@ -10,14 +10,12 @@
 :root {
   --navy: #06122a;
   --gold: #ffd700;
-  --white: #fff;
+  --white: #ffffff;
   --muted: #b7c3d7;
   --green: #20c779;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -26,14 +24,16 @@ body {
   font-family: Arial, sans-serif;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 header {
   text-align: center;
   padding: 24px 12px 16px;
 }
 
-.trophy {
-  font-size: 38px;
-}
+.trophy { font-size: 38px; }
 
 h1 {
   color: var(--gold);
@@ -100,10 +100,8 @@ main {
 .image-button {
   display: block;
   width: 100%;
-  margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
   background: #102343;
   cursor: pointer;
 }
@@ -116,9 +114,7 @@ main {
   background: #102343;
 }
 
-.business-content {
-  padding: 14px;
-}
+.business-content { padding: 14px; }
 
 .business-name {
   margin: 0 0 8px;
@@ -178,17 +174,14 @@ main {
   line-height: 1.4;
 }
 
-.empty,
-.error {
+.empty, .error {
   text-align: center;
   color: var(--muted);
   padding: 20px 8px;
   font-size: 14px;
 }
 
-.error {
-  color: #ff9a9a;
-}
+.error { color: #ff9a9a; }
 
 .retry {
   margin-top: 10px;
@@ -208,9 +201,75 @@ footer a {
   text-decoration: none;
 }
 
-[hidden] {
-  display: none !important;
+/* FULL-SCREEN PICTURE AND COUNTDOWN */
+#pictureModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .96);
+  padding: 16px;
 }
+
+#pictureModal.open { display: flex; }
+
+#fullPicture {
+  max-width: 100%;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+#closePicture {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #555;
+  border-radius: 50%;
+  background: #172b4b;
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+#countdownOverlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  text-align: center;
+  pointer-events: none;
+}
+
+#countdownLabel {
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 6px black;
+}
+
+#countdownNumber {
+  margin-top: 5px;
+  font-size: 54px;
+  font-weight: bold;
+  color: var(--gold);
+  text-shadow: 0 2px 8px black;
+}
+
+#modalMessage {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--gold);
+  text-shadow: 0 2px 6px black;
+}
+
+[hidden] { display: none !important; }
 </style>
 </head>
 
@@ -223,7 +282,6 @@ footer a {
 </header>
 
 <main>
-
   <section id="competitionPanel" class="panel" hidden>
     <div id="competitionTitle" class="competition-title"></div>
     <div id="competitionDates" class="dates"></div>
@@ -237,18 +295,37 @@ footer a {
     </div>
 
     <div id="pageMessage" class="message"></div>
-    <button id="retryButton" class="action-button retry" hidden>
+
+    <button id="retryButton"
+      class="action-button retry" hidden>
       TRY AGAIN
     </button>
   </section>
-
 </main>
 
 <footer>
-  <a href="https://kulzzyradio.com" target="_blank" rel="noopener">
-    KULZZY RADIO
-  </a>
+  <a href="https://kulzzyradio.com"
+     target="_blank" rel="noopener">KULZZY RADIO</a>
 </footer>
+
+<!-- FULL-SCREEN IMAGE -->
+<div id="pictureModal"
+     role="dialog"
+     aria-modal="true"
+     aria-label="Business picture and vote countdown">
+
+  <button id="closePicture"
+          type="button"
+          aria-label="Close picture">×</button>
+
+  <img id="fullPicture" src="" alt="Business picture">
+
+  <div id="countdownOverlay">
+    <div id="countdownLabel">VOTE COUNTDOWN</div>
+    <div id="countdownNumber">5</div>
+    <div id="modalMessage"></div>
+  </div>
+</div>
 
 <script>
 "use strict";
@@ -266,10 +343,19 @@ const pageMessage = document.getElementById("pageMessage");
 const retryButton = document.getElementById("retryButton");
 const liveStatus = document.getElementById("liveStatus");
 
+const pictureModal = document.getElementById("pictureModal");
+const fullPicture = document.getElementById("fullPicture");
+const countdownNumber = document.getElementById("countdownNumber");
+const countdownLabel = document.getElementById("countdownLabel");
+const modalMessage = document.getElementById("modalMessage");
+const closePicture = document.getElementById("closePicture");
+
 let currentCompetition = null;
 let businesses = [];
 let leaderboard = [];
 let loading = false;
+let activeVote = false;
+let closeTimer = null;
 
 function requestHeaders(extra = {}) {
   return {
@@ -298,7 +384,7 @@ async function request(path, options = {}) {
     throw new Error(
       result && result.message
         ? result.message
-        : "Database request failed (" + response.status + ")"
+        : "Database request failed"
     );
   }
 
@@ -396,13 +482,11 @@ function renderBusinesses() {
 
     const imageHTML = image
       ? `
-        <button
-          type="button"
+        <button type="button"
           class="image-button"
-          data-business-id="${id}"
-          aria-label="Vote for ${name}">
-          <img
-            class="business-image"
+          data-picture-id="${id}"
+          aria-label="Open picture and vote for ${name}">
+          <img class="business-image"
             src="${image}"
             alt="${name}"
             loading="lazy"
@@ -423,25 +507,22 @@ function renderBusinesses() {
             : ""}
 
           <div class="rank">
-            RANK: #${index + 1} &nbsp; · &nbsp;
-            VOTES: ${getVoteCount(business.id)}
+            RANK: #${index + 1}
+            &nbsp; · &nbsp; VOTES: ${getVoteCount(business.id)}
           </div>
 
-          <button
-            type="button"
+          <button type="button"
             class="action-button support"
-            data-business-id="${id}"
+            data-vote-id="${id}"
             ${!currentCompetition ? "disabled" : ""}>
             VOTE FOR THIS BUSINESS
           </button>
 
-          <div
-            class="message"
+          <div class="message"
             id="message-${id}"
             aria-live="polite"></div>
 
-          <button
-            type="button"
+          <button type="button"
             class="action-button share"
             data-share-id="${id}">
             SHARE BUSINESS
@@ -451,9 +532,27 @@ function renderBusinesses() {
     `;
   }).join("");
 
-  grid.querySelectorAll("[data-business-id]").forEach(button => {
+  grid.querySelectorAll("[data-picture-id]").forEach(button => {
     button.addEventListener("click", () => {
-      voteForBusiness(button.dataset.businessId);
+      const business = businesses.find(item =>
+        String(item.id) === button.dataset.pictureId
+      );
+
+      if (business) {
+        openPictureAndVote(business, button);
+      }
+    });
+  });
+
+  grid.querySelectorAll("[data-vote-id]").forEach(button => {
+    button.addEventListener("click", () => {
+      const business = businesses.find(item =>
+        String(item.id) === button.dataset.voteId
+      );
+
+      if (business) {
+        voteForBusiness(business, button, false);
+      }
     });
   });
 
@@ -504,9 +603,11 @@ async function loadBusinesses() {
   );
 
   try {
-    leaderboard = await request("/bc_leaderboard?select=*&limit=500");
+    leaderboard = await request(
+      "/bc_leaderboard?select=*&limit=500"
+    );
   } catch (error) {
-    console.error("Leaderboard could not load:", error);
+    console.error("Leaderboard load failed");
     leaderboard = [];
   }
 
@@ -529,8 +630,7 @@ async function loadPage() {
     }
   } catch (error) {
     console.error(error);
-
-    pageMessage.textContent = error.message;
+    pageMessage.textContent = "Could not load data. Try again later.";
     retryButton.hidden = false;
 
     if (!businesses.length) {
@@ -542,40 +642,82 @@ async function loadPage() {
   }
 }
 
-/*
- * Both the business picture and vote button use this function.
- * A vote is counted only if the existing Supabase tracking RPC
- * successfully completes the visit.
- */
-async function voteForBusiness(businessId) {
+function showModal(imageUrl) {
+  clearTimeout(closeTimer);
+
+  fullPicture.src = imageUrl;
+  countdownNumber.textContent = "5";
+  countdownLabel.textContent = "VOTE COUNTDOWN";
+  modalMessage.textContent = "";
+
+  pictureModal.classList.add("open");
+  document.body.classList.add("modal-open");
+}
+
+function hideModal() {
+  if (activeVote) return;
+
+  pictureModal.classList.remove("open");
+  document.body.classList.remove("modal-open");
+  fullPicture.src = "";
+  clearTimeout(closeTimer);
+}
+
+closePicture.addEventListener("click", hideModal);
+
+pictureModal.addEventListener("click", event => {
+  if (event.target === pictureModal) hideModal();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !activeVote) hideModal();
+});
+
+async function openPictureAndVote(business, pictureButton) {
+  if (!business.image_url) return;
+
+  showModal(business.image_url);
+
+  await voteForBusiness(
+    business,
+    pictureButton,
+    true
+  );
+}
+
+async function voteForBusiness(business, sourceButton, useModal) {
+  if (activeVote) return;
+
   if (!currentCompetition) {
-    alert("There is no active competition.");
+    if (useModal) {
+      modalMessage.textContent = "Try again later";
+    } else {
+      const message = document.getElementById(
+        "message-" + business.id
+      );
+      if (message) message.textContent = "Try again later";
+    }
     return;
   }
 
-  const business = businesses.find(item =>
-    String(item.id) === String(businessId)
-  );
-
-  if (!business) return;
-
-  const message = document.getElementById("message-" + businessId);
+  activeVote = true;
 
   const buttons = [
-    ...grid.querySelectorAll("[data-business-id]")
-  ].filter(button =>
-    button.dataset.businessId === String(businessId)
+    ...grid.querySelectorAll(
+      '[data-vote-id="' + CSS.escape(String(business.id)) + '"],' +
+      '[data-picture-id="' + CSS.escape(String(business.id)) + '"]'
+    )
+  ];
+
+  buttons.forEach(button => button.disabled = true);
+
+  const message = document.getElementById(
+    "message-" + business.id
   );
 
-  buttons.forEach(button => {
-    button.disabled = true;
-
-    if (button.classList.contains("support")) {
-      button.textContent = "RECORDING VOTE...";
-    }
-  });
-
-  message.textContent = "";
+  if (!useModal && message) {
+    message.textContent = "5";
+  }
 
   try {
     const started = await request("/rpc/bc_start_click", {
@@ -599,12 +741,20 @@ async function voteForBusiness(businessId) {
           : started?.id ?? started?.session_id;
 
     if (!sessionId) {
-      throw new Error("No tracking session was returned.");
+      throw new Error("Tracking session unavailable");
     }
 
-    message.textContent = "Please wait...";
+    for (let seconds = 5; seconds >= 0; seconds--) {
+      if (useModal) {
+        countdownNumber.textContent = String(seconds);
+      } else if (message) {
+        message.textContent = "VOTE COUNTDOWN: " + seconds;
+      }
 
-    await new Promise(resolve => setTimeout(resolve, 8000));
+      if (seconds > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
 
     const completed = await request("/rpc/bc_complete_click", {
       method: "POST",
@@ -623,41 +773,61 @@ async function voteForBusiness(businessId) {
       (Array.isArray(completed) && completed[0] === true);
 
     if (!valid) {
-      throw new Error("Supabase did not confirm a valid vote.");
+      throw new Error("Vote not confirmed");
     }
 
-    message.textContent = "VOTE RECORDED SUCCESSFULLY!";
-
-    buttons.forEach(button => {
-      if (button.classList.contains("support")) {
-        button.textContent = "VOTE RECORDED";
-      }
-    });
+    if (useModal) {
+      countdownLabel.textContent = "VOTE RECORDED";
+      countdownNumber.textContent = "✓";
+      modalMessage.textContent = "";
+    } else if (message) {
+      message.textContent = "Vote recorded successfully!";
+    }
 
     await refreshLeaderboard();
 
-  } catch (error) {
-    console.error("Vote error:", error);
+    if (useModal) {
+      closeTimer = setTimeout(() => {
+        pictureModal.classList.remove("open");
+        document.body.classList.remove("modal-open");
+        fullPicture.src = "";
+      }, 1600);
+    }
 
-    message.textContent =
-      "Vote failed: " + error.message;
+  } catch (error) {
+    console.error("Vote request failed:", error);
+
+    if (useModal) {
+      countdownLabel.textContent = "";
+      countdownNumber.textContent = "";
+      modalMessage.textContent = "Try again later";
+
+      closeTimer = setTimeout(() => {
+        pictureModal.classList.remove("open");
+        document.body.classList.remove("modal-open");
+        fullPicture.src = "";
+      }, 1800);
+    } else if (message) {
+      message.textContent = "Try again later";
+    }
+
+  } finally {
+    activeVote = false;
 
     buttons.forEach(button => {
       button.disabled = false;
-
-      if (button.classList.contains("support")) {
-        button.textContent = "TRY AGAIN";
-      }
     });
   }
 }
 
 async function refreshLeaderboard() {
   try {
-    leaderboard = await request("/bc_leaderboard?select=*&limit=500");
+    leaderboard = await request(
+      "/bc_leaderboard?select=*&limit=500"
+    );
     renderBusinesses();
   } catch (error) {
-    console.error("Could not refresh votes:", error);
+    console.error("Vote count refresh failed");
   }
 }
 
@@ -668,7 +838,7 @@ async function shareBusiness(businessId) {
 
   if (!business) return;
 
-  const shareData = {
+  const data = {
     title: business.business_name,
     text: "Vote for " + business.business_name +
       " in Business Champion of the Week!",
@@ -677,10 +847,10 @@ async function shareBusiness(businessId) {
 
   try {
     if (navigator.share) {
-      await navigator.share(shareData);
+      await navigator.share(data);
     } else if (navigator.clipboard) {
       await navigator.clipboard.writeText(
-        shareData.text + " " + shareData.url
+        data.text + " " + data.url
       );
       alert("Business link copied.");
     } else {
