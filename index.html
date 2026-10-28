@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#06122a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Business Champion of the Week</title>
 
 <style>
@@ -15,7 +16,9 @@
   --green: #20c779;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -33,7 +36,9 @@ header {
   padding: 24px 12px 16px;
 }
 
-.trophy { font-size: 38px; }
+.trophy {
+  font-size: 38px;
+}
 
 h1 {
   color: var(--gold);
@@ -75,6 +80,7 @@ main {
   font-size: 19px;
   font-weight: bold;
   margin-bottom: 9px;
+  overflow-wrap: anywhere;
 }
 
 .dates {
@@ -114,7 +120,9 @@ main {
   background: #102343;
 }
 
-.business-content { padding: 14px; }
+.business-content {
+  padding: 14px;
+}
 
 .business-name {
   margin: 0 0 8px;
@@ -172,16 +180,20 @@ main {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
-.empty, .error {
+.empty,
+.error {
   text-align: center;
   color: var(--muted);
   padding: 20px 8px;
   font-size: 14px;
 }
 
-.error { color: #ff9a9a; }
+.error {
+  color: #ff9a9a;
+}
 
 .retry {
   margin-top: 10px;
@@ -201,7 +213,7 @@ footer a {
   text-decoration: none;
 }
 
-/* FULL-SCREEN PICTURE AND COUNTDOWN */
+/* FULL-SCREEN PICTURE */
 #pictureModal {
   position: fixed;
   inset: 0;
@@ -209,13 +221,16 @@ footer a {
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, .96);
+  background: rgba(0, 0, 0, .97);
   padding: 16px;
 }
 
-#pictureModal.open { display: flex; }
+#pictureModal.open {
+  display: flex;
+}
 
 #fullPicture {
+  display: block;
   max-width: 100%;
   max-height: 88vh;
   object-fit: contain;
@@ -227,13 +242,13 @@ footer a {
   top: 15px;
   right: 15px;
   z-index: 3;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 1px solid #555;
   border-radius: 50%;
   background: #172b4b;
   color: white;
-  font-size: 25px;
+  font-size: 27px;
   cursor: pointer;
 }
 
@@ -244,6 +259,7 @@ footer a {
   bottom: 8%;
   text-align: center;
   pointer-events: none;
+  padding: 10px;
 }
 
 #countdownLabel {
@@ -269,7 +285,9 @@ footer a {
   text-shadow: 0 2px 6px black;
 }
 
-[hidden] { display: none !important; }
+[hidden] {
+  display: none !important;
+}
 </style>
 </head>
 
@@ -297,7 +315,9 @@ footer a {
     <div id="pageMessage" class="message"></div>
 
     <button id="retryButton"
-      class="action-button retry" hidden>
+      class="action-button retry"
+      type="button"
+      hidden>
       TRY AGAIN
     </button>
   </section>
@@ -305,10 +325,11 @@ footer a {
 
 <footer>
   <a href="https://kulzzyradio.com"
-     target="_blank" rel="noopener">KULZZY RADIO</a>
+     target="_blank"
+     rel="noopener">KULZZY RADIO</a>
 </footer>
 
-<!-- FULL-SCREEN IMAGE -->
+<!-- FULL-SCREEN PICTURE AND COUNTDOWN -->
 <div id="pictureModal"
      role="dialog"
      aria-modal="true"
@@ -318,7 +339,9 @@ footer a {
           type="button"
           aria-label="Close picture">×</button>
 
-  <img id="fullPicture" src="" alt="Business picture">
+  <img id="fullPicture"
+       src=""
+       alt="Business picture">
 
   <div id="countdownOverlay">
     <div id="countdownLabel">VOTE COUNTDOWN</div>
@@ -330,6 +353,7 @@ footer a {
 <script>
 "use strict";
 
+/* SUPABASE CONNECTION — KEEP THESE SETTINGS */
 const SUPABASE_URL =
   "https://qliohhpxpcybawkkuwra.supabase.co";
 
@@ -355,7 +379,6 @@ let businesses = [];
 let leaderboard = [];
 let loading = false;
 let activeVote = false;
-let closeTimer = null;
 
 function requestHeaders(extra = {}) {
   return {
@@ -406,7 +429,9 @@ function formatDate(value) {
 
   const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) return "Not specified";
+  if (Number.isNaN(date.getTime())) {
+    return "Not specified";
+  }
 
   return date.toLocaleString(undefined, {
     day: "numeric",
@@ -417,6 +442,17 @@ function formatDate(value) {
   });
 }
 
+function createVisitorKey() {
+  if (window.crypto && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, char => {
+    const random = Math.random() * 16 | 0;
+    return (char === "x" ? random : (random & 3 | 8)).toString(16);
+  });
+}
+
 function getVisitorKey() {
   const keyName = "bc_visitor_key";
 
@@ -424,13 +460,13 @@ function getVisitorKey() {
     let key = localStorage.getItem(keyName);
 
     if (!key) {
-      key = crypto.randomUUID();
+      key = createVisitorKey();
       localStorage.setItem(keyName, key);
     }
 
     return key;
   } catch {
-    return crypto.randomUUID();
+    return createVisitorKey();
   }
 }
 
@@ -515,7 +551,7 @@ function renderBusinesses() {
             class="action-button support"
             data-vote-id="${id}"
             ${!currentCompetition ? "disabled" : ""}>
-            VOTE FOR THIS BUSINESS
+            VOTE FOR THIS BUSINESS BY TAPPING ON THE PICTURE
           </button>
 
           <div class="message"
@@ -539,7 +575,7 @@ function renderBusinesses() {
       );
 
       if (business) {
-        openPictureAndVote(business, button);
+        openPictureAndVote(business);
       }
     });
   });
@@ -551,7 +587,14 @@ function renderBusinesses() {
       );
 
       if (business) {
-        voteForBusiness(business, button, false);
+        const message = document.getElementById(
+          "message-" + business.id
+        );
+
+        if (message) {
+          message.textContent =
+            "Please tap the business picture to vote.";
+        }
       }
     });
   });
@@ -630,6 +673,7 @@ async function loadPage() {
     }
   } catch (error) {
     console.error(error);
+
     pageMessage.textContent = "Could not load data. Try again later.";
     retryButton.hidden = false;
 
@@ -642,9 +686,8 @@ async function loadPage() {
   }
 }
 
+/* OPEN PICTURE — IT STAYS OPEN UNTIL THE VISITOR CLOSES IT */
 function showModal(imageUrl) {
-  clearTimeout(closeTimer);
-
   fullPicture.src = imageUrl;
   countdownNumber.textContent = "5";
   countdownLabel.textContent = "VOTE COUNTDOWN";
@@ -655,37 +698,42 @@ function showModal(imageUrl) {
 }
 
 function hideModal() {
+  /*
+    Do not close the picture while the vote countdown
+    and confirmation request are still running.
+  */
   if (activeVote) return;
 
   pictureModal.classList.remove("open");
   document.body.classList.remove("modal-open");
   fullPicture.src = "";
-  clearTimeout(closeTimer);
 }
 
 closePicture.addEventListener("click", hideModal);
 
+/* Allow the visitor to close by tapping outside the picture. */
 pictureModal.addEventListener("click", event => {
-  if (event.target === pictureModal) hideModal();
+  if (event.target === pictureModal) {
+    hideModal();
+  }
 });
 
+/* Escape key can also close the picture after voting ends. */
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && !activeVote) hideModal();
+  if (event.key === "Escape") {
+    hideModal();
+  }
 });
 
-async function openPictureAndVote(business, pictureButton) {
-  if (!business.image_url) return;
+async function openPictureAndVote(business) {
+  if (!business.image_url || activeVote) return;
 
   showModal(business.image_url);
 
-  await voteForBusiness(
-    business,
-    pictureButton,
-    true
-  );
+  await voteForBusiness(business, true);
 }
 
-async function voteForBusiness(business, sourceButton, useModal) {
+async function voteForBusiness(business, useModal) {
   if (activeVote) return;
 
   if (!currentCompetition) {
@@ -695,8 +743,12 @@ async function voteForBusiness(business, sourceButton, useModal) {
       const message = document.getElementById(
         "message-" + business.id
       );
-      if (message) message.textContent = "Try again later";
+
+      if (message) {
+        message.textContent = "Try again later";
+      }
     }
+
     return;
   }
 
@@ -709,17 +761,18 @@ async function voteForBusiness(business, sourceButton, useModal) {
     )
   ];
 
-  buttons.forEach(button => button.disabled = true);
+  buttons.forEach(button => {
+    button.disabled = true;
+  });
 
   const message = document.getElementById(
     "message-" + business.id
   );
 
-  if (!useModal && message) {
-    message.textContent = "5";
-  }
-
   try {
+    /*
+      Start the vote-tracking session in Supabase.
+    */
     const started = await request("/rpc/bc_start_click", {
       method: "POST",
       headers: {
@@ -744,6 +797,9 @@ async function voteForBusiness(business, sourceButton, useModal) {
       throw new Error("Tracking session unavailable");
     }
 
+    /*
+      Display the countdown from 5 to 0.
+    */
     for (let seconds = 5; seconds >= 0; seconds--) {
       if (useModal) {
         countdownNumber.textContent = String(seconds);
@@ -756,6 +812,9 @@ async function voteForBusiness(business, sourceButton, useModal) {
       }
     }
 
+    /*
+      Complete the vote using the existing Supabase RPC.
+    */
     const completed = await request("/rpc/bc_complete_click", {
       method: "POST",
       headers: {
@@ -784,15 +843,11 @@ async function voteForBusiness(business, sourceButton, useModal) {
       message.textContent = "Vote recorded successfully!";
     }
 
+    /*
+      Refresh the ranking, but DO NOT close the picture.
+      The visitor must close it manually.
+    */
     await refreshLeaderboard();
-
-    if (useModal) {
-      closeTimer = setTimeout(() => {
-        pictureModal.classList.remove("open");
-        document.body.classList.remove("modal-open");
-        fullPicture.src = "";
-      }, 1600);
-    }
 
   } catch (error) {
     console.error("Vote request failed:", error);
@@ -801,15 +856,13 @@ async function voteForBusiness(business, sourceButton, useModal) {
       countdownLabel.textContent = "";
       countdownNumber.textContent = "";
       modalMessage.textContent = "Try again later";
-
-      closeTimer = setTimeout(() => {
-        pictureModal.classList.remove("open");
-        document.body.classList.remove("modal-open");
-        fullPicture.src = "";
-      }, 1800);
     } else if (message) {
       message.textContent = "Try again later";
     }
+
+    /*
+      On failure, the full-screen picture also stays open.
+    */
 
   } finally {
     activeVote = false;
@@ -825,6 +878,7 @@ async function refreshLeaderboard() {
     leaderboard = await request(
       "/bc_leaderboard?select=*&limit=500"
     );
+
     renderBusinesses();
   } catch (error) {
     console.error("Vote count refresh failed");
@@ -852,6 +906,7 @@ async function shareBusiness(businessId) {
       await navigator.clipboard.writeText(
         data.text + " " + data.url
       );
+
       alert("Business link copied.");
     } else {
       prompt("Copy this link:", location.href);
