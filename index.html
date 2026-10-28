@@ -10,8 +10,8 @@
 :root {
   --navy: #06122a;
   --gold: #ffd700;
-  --white: #ffffff;
-  --muted: #aeb9cc;
+  --white: #fff;
+  --muted: #b7c3d7;
   --green: #20c779;
 }
 
@@ -28,7 +28,7 @@ body {
 
 header {
   text-align: center;
-  padding: 25px 12px 18px;
+  padding: 24px 12px 16px;
 }
 
 .trophy {
@@ -36,15 +36,15 @@ header {
 }
 
 h1 {
-  margin: 8px 0;
   color: var(--gold);
   font-size: clamp(23px, 6vw, 34px);
   line-height: 1.2;
+  margin: 8px 0;
 }
 
 .live {
   display: inline-block;
-  margin-top: 8px;
+  margin-top: 6px;
   color: var(--green);
   font-size: 12px;
   font-weight: bold;
@@ -58,23 +58,23 @@ main {
 }
 
 .panel {
-  padding: 16px;
-  margin-bottom: 18px;
-  border: 1px solid #253655;
-  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 17px;
+  border: 1px solid #293b5b;
+  border-radius: 13px;
   background: #0b1b37;
 }
 
 .section-title {
   margin: 0 0 14px;
   color: var(--gold);
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .competition-title {
   font-size: 19px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 }
 
 .dates {
@@ -93,8 +93,19 @@ main {
   min-width: 0;
   overflow: hidden;
   border: 1px solid #293b5b;
-  border-radius: 14px;
+  border-radius: 13px;
   background: #0b1b37;
+}
+
+.image-button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #102343;
+  cursor: pointer;
 }
 
 .business-image {
@@ -116,7 +127,7 @@ main {
 }
 
 .description {
-  margin: 0 0 14px;
+  margin: 0 0 13px;
   color: #d1d9e8;
   font-size: 14px;
   line-height: 1.5;
@@ -130,11 +141,12 @@ main {
   margin-bottom: 12px;
 }
 
-button {
+.action-button {
+  display: block;
   width: 100%;
+  padding: 13px 10px;
   border: 0;
   border-radius: 9px;
-  padding: 13px 10px;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
@@ -145,8 +157,9 @@ button {
   color: var(--navy);
 }
 
-.support:disabled {
-  opacity: .65;
+.support:disabled,
+.image-button:disabled {
+  opacity: .7;
   cursor: wait;
 }
 
@@ -158,17 +171,18 @@ button {
 }
 
 .message {
-  min-height: 18px;
-  margin-top: 9px;
+  min-height: 16px;
+  margin-top: 8px;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.4;
 }
 
-.empty, .error {
+.empty,
+.error {
   text-align: center;
   color: var(--muted);
-  padding: 22px 8px;
+  padding: 20px 8px;
   font-size: 14px;
 }
 
@@ -183,7 +197,7 @@ button {
 }
 
 footer {
-  padding: 22px 10px;
+  padding: 20px 10px;
   text-align: center;
   color: var(--muted);
   font-size: 11px;
@@ -217,11 +231,15 @@ footer a {
 
   <section class="panel">
     <h2 class="section-title">PARTICIPATING BUSINESSES</h2>
+
     <div id="businessGrid" class="grid">
       <div class="empty">Loading businesses...</div>
     </div>
+
     <div id="pageMessage" class="message"></div>
-    <button id="retryButton" class="retry" hidden>TRY AGAIN</button>
+    <button id="retryButton" class="action-button retry" hidden>
+      TRY AGAIN
+    </button>
   </section>
 
 </main>
@@ -235,7 +253,6 @@ footer a {
 <script>
 "use strict";
 
-/* SUPABASE CONNECTION */
 const SUPABASE_URL =
   "https://qliohhpxpcybawkkuwra.supabase.co";
 
@@ -254,10 +271,10 @@ let businesses = [];
 let leaderboard = [];
 let loading = false;
 
-function headers(extra = {}) {
+function requestHeaders(extra = {}) {
   return {
-    "apikey": SUPABASE_KEY,
-    "Authorization": "Bearer " + SUPABASE_KEY,
+    apikey: SUPABASE_KEY,
+    Authorization: "Bearer " + SUPABASE_KEY,
     ...extra
   };
 }
@@ -265,7 +282,7 @@ function headers(extra = {}) {
 async function request(path, options = {}) {
   const response = await fetch(API + path, {
     ...options,
-    headers: headers(options.headers || {})
+    headers: requestHeaders(options.headers || {})
   });
 
   const text = await response.text();
@@ -278,12 +295,11 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    const message =
+    throw new Error(
       result && result.message
         ? result.message
-        : "Request failed (" + response.status + ")";
-
-    throw new Error(message);
+        : "Database request failed (" + response.status + ")"
+    );
   }
 
   return result;
@@ -315,7 +331,7 @@ function formatDate(value) {
   });
 }
 
-function newVisitorKey() {
+function getVisitorKey() {
   const keyName = "bc_visitor_key";
 
   try {
@@ -332,38 +348,31 @@ function newVisitorKey() {
   }
 }
 
-function getSupportCount(businessId) {
+function getVoteCount(businessId) {
   const row = leaderboard.find(item =>
     String(
       item.business_id ??
-      item.id ??
       item.bc_business_id ??
+      item.id ??
       ""
     ) === String(businessId)
   );
 
-  if (!row) return null;
+  if (!row) return 0;
 
-  const count =
+  const value =
     row.valid_clicks ??
+    row.vote_count ??
+    row.votes ??
     row.support_count ??
     row.total_clicks ??
     row.click_count ??
     row.clicks ??
     row.completed_clicks;
 
-  return count == null ? null : Number(count);
-}
+  const number = Number(value);
 
-function getBusinessOrder(a, b) {
-  const countA = getSupportCount(a.id);
-  const countB = getSupportCount(b.id);
-
-  if (countA !== null && countB !== null) {
-    return countB - countA;
-  }
-
-  return 0;
+  return Number.isFinite(number) ? number : 0;
 }
 
 function renderBusinesses() {
@@ -373,28 +382,39 @@ function renderBusinesses() {
     return;
   }
 
-  const sorted = [...businesses].sort(getBusinessOrder);
+  const sorted = [...businesses].sort((a, b) =>
+    getVoteCount(b.id) - getVoteCount(a.id)
+  );
 
   grid.innerHTML = sorted.map((business, index) => {
+    const id = escapeHTML(business.id);
     const name = escapeHTML(business.business_name);
     const description = escapeHTML(business.description || "");
     const image = business.image_url
       ? escapeHTML(business.image_url)
       : "";
 
-    const count = getSupportCount(business.id);
-
     const imageHTML = image
-      ? `<img class="business-image"
-          src="${image}"
-          alt="${name}"
-          loading="lazy"
-          onerror="this.style.display='none'">`
+      ? `
+        <button
+          type="button"
+          class="image-button"
+          data-business-id="${id}"
+          aria-label="Vote for ${name}">
+          <img
+            class="business-image"
+            src="${image}"
+            alt="${name}"
+            loading="lazy"
+            onerror="this.closest('.image-button').style.display='none'">
+        </button>
+      `
       : "";
 
     return `
       <article class="business">
         ${imageHTML}
+
         <div class="business-content">
           <h3 class="business-name">${name}</h3>
 
@@ -403,22 +423,27 @@ function renderBusinesses() {
             : ""}
 
           <div class="rank">
-            RANK: #${index + 1}
-            ${count !== null ? " · SUPPORTS: " + count : ""}
+            RANK: #${index + 1} &nbsp; · &nbsp;
+            VOTES: ${getVoteCount(business.id)}
           </div>
 
           <button
-            class="support"
-            data-business-id="${escapeHTML(business.id)}"
+            type="button"
+            class="action-button support"
+            data-business-id="${id}"
             ${!currentCompetition ? "disabled" : ""}>
-            SUPPORT THIS BUSINESS
+            VOTE FOR THIS BUSINESS
           </button>
 
-          <div class="message" id="message-${escapeHTML(business.id)}"></div>
+          <div
+            class="message"
+            id="message-${id}"
+            aria-live="polite"></div>
 
           <button
-            class="share"
-            data-share-id="${escapeHTML(business.id)}">
+            type="button"
+            class="action-button share"
+            data-share-id="${id}">
             SHARE BUSINESS
           </button>
         </div>
@@ -428,7 +453,7 @@ function renderBusinesses() {
 
   grid.querySelectorAll("[data-business-id]").forEach(button => {
     button.addEventListener("click", () => {
-      supportBusiness(button.dataset.businessId, button);
+      voteForBusiness(button.dataset.businessId);
     });
   });
 
@@ -450,7 +475,7 @@ async function loadCompetition() {
     "&order=starts_at.desc&limit=1"
   );
 
-  currentCompetition = rows && rows.length ? rows[0] : null;
+  currentCompetition = rows?.length ? rows[0] : null;
 
   const panel = document.getElementById("competitionPanel");
 
@@ -467,7 +492,7 @@ async function loadCompetition() {
 
   document.getElementById("competitionDates").textContent =
     "START: " + formatDate(currentCompetition.starts_at) +
-    "  |  END: " + formatDate(currentCompetition.ends_at);
+    " | END: " + formatDate(currentCompetition.ends_at);
 
   liveStatus.textContent = "● COMPETITION LIVE";
 }
@@ -480,7 +505,8 @@ async function loadBusinesses() {
 
   try {
     leaderboard = await request("/bc_leaderboard?select=*&limit=500");
-  } catch {
+  } catch (error) {
+    console.error("Leaderboard could not load:", error);
     leaderboard = [];
   }
 
@@ -504,9 +530,7 @@ async function loadPage() {
   } catch (error) {
     console.error(error);
 
-    pageMessage.textContent =
-      "Could not load data: " + error.message;
-
+    pageMessage.textContent = error.message;
     retryButton.hidden = false;
 
     if (!businesses.length) {
@@ -519,15 +543,11 @@ async function loadPage() {
 }
 
 /*
- * SUPPORT FLOW:
- * 1. Start a tracking session.
- * 2. Wait while the visitor remains on the page.
- * 3. Complete the session through the existing RPC.
- *
- * Only a successful bc_complete_click response is treated
- * as a completed support visit.
+ * Both the business picture and vote button use this function.
+ * A vote is counted only if the existing Supabase tracking RPC
+ * successfully completes the visit.
  */
-async function supportBusiness(businessId, button) {
+async function voteForBusiness(businessId) {
   if (!currentCompetition) {
     alert("There is no active competition.");
     return;
@@ -541,14 +561,24 @@ async function supportBusiness(businessId, button) {
 
   const message = document.getElementById("message-" + businessId);
 
-  button.disabled = true;
-  button.textContent = "RECORDING SUPPORT...";
+  const buttons = [
+    ...grid.querySelectorAll("[data-business-id]")
+  ].filter(button =>
+    button.dataset.businessId === String(businessId)
+  );
+
+  buttons.forEach(button => {
+    button.disabled = true;
+
+    if (button.classList.contains("support")) {
+      button.textContent = "RECORDING VOTE...";
+    }
+  });
+
   message.textContent = "";
 
-  let sessionId = null;
-
   try {
-    const result = await request("/rpc/bc_start_click", {
+    const started = await request("/rpc/bc_start_click", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -557,21 +587,22 @@ async function supportBusiness(businessId, button) {
       body: JSON.stringify({
         p_competition_id: currentCompetition.id,
         p_business_id: business.id,
-        p_visitor_key: newVisitorKey()
+        p_visitor_key: getVisitorKey()
       })
     });
 
-    sessionId = typeof result === "string"
-      ? result
-      : Array.isArray(result)
-        ? result[0]
-        : result?.id ?? result?.session_id;
+    const sessionId =
+      typeof started === "string"
+        ? started
+        : Array.isArray(started)
+          ? started[0]
+          : started?.id ?? started?.session_id;
 
     if (!sessionId) {
-      throw new Error("The tracking session was not returned.");
+      throw new Error("No tracking session was returned.");
     }
 
-    message.textContent = "Please wait a moment...";
+    message.textContent = "Please wait...";
 
     await new Promise(resolve => setTimeout(resolve, 8000));
 
@@ -586,29 +617,38 @@ async function supportBusiness(businessId, button) {
       })
     });
 
-    if (completed !== true && completed !== "true" &&
-        !(Array.isArray(completed) && completed[0] === true)) {
-      throw new Error("The visit was not confirmed as valid.");
+    const valid =
+      completed === true ||
+      completed === "true" ||
+      (Array.isArray(completed) && completed[0] === true);
+
+    if (!valid) {
+      throw new Error("Supabase did not confirm a valid vote.");
     }
 
-    message.textContent = "Support recorded successfully!";
-    button.textContent = "SUPPORT RECORDED";
+    message.textContent = "VOTE RECORDED SUCCESSFULLY!";
+
+    buttons.forEach(button => {
+      if (button.classList.contains("support")) {
+        button.textContent = "VOTE RECORDED";
+      }
+    });
 
     await refreshLeaderboard();
 
-    return;
-
   } catch (error) {
-    console.error(error);
+    console.error("Vote error:", error);
 
     message.textContent =
-      "Support could not be confirmed. Please try again.";
+      "Vote failed: " + error.message;
 
-    button.textContent = "TRY AGAIN";
-  } finally {
-    if (button.textContent !== "SUPPORT RECORDED") {
+    buttons.forEach(button => {
       button.disabled = false;
-    }
+
+      if (button.classList.contains("support")) {
+        button.textContent = "TRY AGAIN";
+      }
+    });
   }
 }
 
@@ -617,7 +657,7 @@ async function refreshLeaderboard() {
     leaderboard = await request("/bc_leaderboard?select=*&limit=500");
     renderBusinesses();
   } catch (error) {
-    console.error("Ranking refresh failed:", error);
+    console.error("Could not refresh votes:", error);
   }
 }
 
@@ -630,7 +670,7 @@ async function shareBusiness(businessId) {
 
   const shareData = {
     title: business.business_name,
-    text: "Support " + business.business_name +
+    text: "Vote for " + business.business_name +
       " in Business Champion of the Week!",
     url: location.href
   };
