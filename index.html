@@ -1,961 +1,662 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#06122a">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06122a">
+<title>Business Champion of the Week</title>
 
-  <title>Business Champion of the Week | Kulzzy Radio</title>
+<style>
+:root {
+  --navy: #06122a;
+  --gold: #ffd700;
+  --white: #ffffff;
+  --muted: #aeb9cc;
+  --green: #20c779;
+}
 
-  <meta
-    name="description"
-    content="Discover businesses, explore their services and support your favourite businesses with Kulzzy Radio's Business Champion of the Week."
-  >
+* {
+  box-sizing: border-box;
+}
 
-  <style>
-    :root {
-      --navy: #06122a;
-      --navy-light: #0d2042;
-      --gold: #ffd700;
-      --white: #ffffff;
-      --muted: #b9c4d8;
-      --green: #18a957;
-      --red: #ff6262;
-      --card: #102344;
-    }
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--white);
+  font-family: Arial, sans-serif;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+header {
+  text-align: center;
+  padding: 25px 12px 18px;
+}
 
-    html {
-      scroll-behavior: smooth;
-    }
+.trophy {
+  font-size: 38px;
+}
 
-    body {
-      margin: 0;
-      background: var(--navy);
-      color: var(--white);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.6;
-    }
+h1 {
+  margin: 8px 0;
+  color: var(--gold);
+  font-size: clamp(23px, 6vw, 34px);
+  line-height: 1.2;
+}
 
-    button,
-    a {
-      -webkit-tap-highlight-color: transparent;
-    }
+.live {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: bold;
+}
 
-    a {
-      color: inherit;
-    }
+main {
+  width: 100%;
+  max-width: 850px;
+  margin: auto;
+  padding: 12px;
+}
 
-    .topbar {
-      padding: 12px 16px;
-      text-align: center;
-      background: #030b1b;
-      border-bottom: 2px solid var(--gold);
-      color: var(--gold);
-      font-weight: 800;
-      letter-spacing: 1px;
-      font-size: 13px;
-    }
+.panel {
+  padding: 16px;
+  margin-bottom: 18px;
+  border: 1px solid #253655;
+  border-radius: 14px;
+  background: #0b1b37;
+}
 
-    .hero {
-      text-align: center;
-      padding: 38px 18px 30px;
-      background:
-        radial-gradient(
-          ellipse at top,
-          #183661 0%,
-          #0b1c39 45%,
-          var(--navy) 100%
-        );
-    }
+.section-title {
+  margin: 0 0 14px;
+  color: var(--gold);
+  font-size: 18px;
+}
 
-    .trophy {
-      font-size: 55px;
-      line-height: 1.3;
-    }
+.competition-title {
+  font-size: 19px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-    .hero h1 {
-      color: var(--gold);
-      font-size: clamp(27px, 6vw, 43px);
-      line-height: 1.2;
-      margin: 12px auto;
-      max-width: 850px;
-    }
+.dates {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
 
-    .hero h2 {
-      font-size: clamp(15px, 3.5vw, 21px);
-      margin: 14px 0;
-      letter-spacing: 1px;
-    }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
 
-    .hero p {
-      color: var(--muted);
-      max-width: 650px;
-      margin: 0 auto;
-      font-size: 15px;
-    }
+.business {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #293b5b;
+  border-radius: 14px;
+  background: #0b1b37;
+}
 
-    .container {
-      width: min(1100px, 100%);
-      margin: auto;
-      padding: 22px 15px 45px;
-    }
+.business-image {
+  display: block;
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  background: #102343;
+}
 
-    .section {
-      margin-bottom: 32px;
-    }
+.business-content {
+  padding: 14px;
+}
 
-    .section-heading {
-      color: var(--gold);
-      font-size: 23px;
-      margin: 0 0 14px;
-      padding-bottom: 9px;
-      border-bottom: 1px solid #29446e;
-    }
+.business-name {
+  margin: 0 0 8px;
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
 
-    .panel {
-      background: var(--navy-light);
-      border: 1px solid #263e65;
-      border-radius: 16px;
-      padding: 20px;
-      overflow-wrap: anywhere;
-    }
+.description {
+  margin: 0 0 14px;
+  color: #d1d9e8;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 
-    .competition-title {
-      color: var(--gold);
-      font-size: 24px;
-      margin: 0 0 8px;
-    }
+.rank {
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
 
-    .status {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 30px;
-      background: #153e2b;
-      color: #7ff0a8;
-      font-size: 12px;
-      font-weight: bold;
-      margin: 5px 0 10px;
-    }
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 9px;
+  padding: 13px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    .status.upcoming {
-      background: #473919;
-      color: var(--gold);
-    }
+.support {
+  background: var(--gold);
+  color: var(--navy);
+}
 
-    .status.ended {
-      background: #452323;
-      color: #ffaaaa;
-    }
+.support:disabled {
+  opacity: .65;
+  cursor: wait;
+}
 
-    .dates {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 8px;
-    }
+.share {
+  margin-top: 8px;
+  background: #172b4b;
+  color: white;
+  border: 1px solid #334968;
+}
 
-    .loading {
-      padding: 18px 12px;
-      text-align: center;
-      color: var(--muted);
-      background: #0a1933;
-      border: 1px solid #22395d;
-      border-radius: 12px;
-      overflow-wrap: anywhere;
-    }
+.message {
+  min-height: 18px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
 
-    .error {
-      border-color: #8d3434;
-      color: #ffd0d0;
-      background: #30191f;
-    }
+.empty, .error {
+  text-align: center;
+  color: var(--muted);
+  padding: 22px 8px;
+  font-size: 14px;
+}
 
-    .success {
-      border-color: #287447;
-      color: #c6ffda;
-      background: #102b22;
-    }
+.error {
+  color: #ff9a9a;
+}
 
-    .business-grid {
-      display: grid;
-      grid-template-columns: repeat(
-        auto-fit,
-        minmax(min(100%, 260px), 1fr)
-      );
-      gap: 18px;
-    }
+.retry {
+  margin-top: 10px;
+  background: var(--gold);
+  color: var(--navy);
+}
 
-    .business-card {
-      background: var(--card);
-      border: 1px solid #263e65;
-      border-radius: 15px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+footer {
+  padding: 22px 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+}
 
-    .business-image {
-      width: 100%;
-      height: 215px;
-      object-fit: cover;
-      background: #08142b;
-      display: block;
-    }
+footer a {
+  color: var(--gold);
+  text-decoration: none;
+}
 
-    .image-placeholder {
-      height: 150px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 54px;
-      color: var(--gold);
-      background: linear-gradient(135deg, #132e55, #06122a);
-    }
-
-    .business-content {
-      padding: 17px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .business-name {
-      color: var(--gold);
-      font-size: 21px;
-      line-height: 1.3;
-      margin: 0 0 10px;
-      overflow-wrap: anywhere;
-    }
-
-    .business-description {
-      color: #e0e8f5;
-      font-size: 14px;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      margin: 0 0 15px;
-    }
-
-    .business-actions {
-      display: grid;
-      gap: 9px;
-      margin-top: auto;
-    }
-
-    .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      border: none;
-      border-radius: 9px;
-      padding: 12px 14px;
-      min-height: 44px;
-      font-weight: bold;
-      font-size: 14px;
-      text-decoration: none;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .btn-gold {
-      color: #06122a;
-      background: var(--gold);
-    }
-
-    .btn-green {
-      color: white;
-      background: var(--green);
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-    }
-
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.55;
-    }
-
-    .small-note {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 9px;
-    }
-
-    .retry {
-      max-width: 230px;
-      margin: 12px auto 0;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 28px 15px;
-      background: #030b1b;
-      border-top: 2px solid var(--gold);
-    }
-
-    .footer strong {
-      color: var(--gold);
-      letter-spacing: 1px;
-    }
-
-    .footer p {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .footer a {
-      color: var(--gold);
-      text-decoration: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 480px) {
-      .hero {
-        padding-top: 28px;
-      }
-
-      .container {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
-
-      .panel {
-        padding: 15px;
-      }
-
-      .business-image {
-        height: 200px;
-      }
-    }
-  </style>
+[hidden] {
+  display: none !important;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="topbar">
-    KULZZY RADIO NETWORK
-  </div>
+<header>
+  <div class="trophy">🏆</div>
+  <h1>BUSINESS CHAMPION<br>OF THE WEEK</h1>
+  <div id="liveStatus" class="live">CHECKING COMPETITION...</div>
+</header>
 
-  <header class="hero">
-    <div class="trophy">🏆</div>
+<main>
 
-    <h1>BUSINESS CHAMPION OF THE WEEK</h1>
+  <section id="competitionPanel" class="panel" hidden>
+    <div id="competitionTitle" class="competition-title"></div>
+    <div id="competitionDates" class="dates"></div>
+  </section>
 
-    <h2>SUPPORT A BUSINESS. HELP IT SHINE.</h2>
+  <section class="panel">
+    <h2 class="section-title">PARTICIPATING BUSINESSES</h2>
+    <div id="businessGrid" class="grid">
+      <div class="empty">Loading businesses...</div>
+    </div>
+    <div id="pageMessage" class="message"></div>
+    <button id="retryButton" class="retry" hidden>TRY AGAIN</button>
+  </section>
 
-    <p>
-      Explore the participating businesses, learn about what they offer,
-      and share your favourites with friends and family.
-    </p>
-  </header>
+</main>
 
-  <main class="container">
+<footer>
+  <a href="https://kulzzyradio.com" target="_blank" rel="noopener">
+    KULZZY RADIO
+  </a>
+</footer>
 
-    <section class="section">
-      <h2 class="section-heading">🏆 Current Competition</h2>
+<script>
+"use strict";
 
-      <div id="competitionStatus" class="loading" role="status">
-        Connecting to the competition board…
-      </div>
-    </section>
+/* SUPABASE CONNECTION */
+const SUPABASE_URL =
+  "https://qliohhpxpcybawkkuwra.supabase.co";
 
-    <section class="section">
-      <h2 class="section-heading">🏢 Participating Businesses</h2>
+const SUPABASE_KEY =
+  "sb_publishable_p25JoH3NXHjBO2gRBlfgAQ_GejS3jtr";
 
-      <div id="businessStatus" class="loading" role="status">
-        Loading participating businesses…
-      </div>
+const API = SUPABASE_URL + "/rest/v1";
 
-      <div id="businessGrid" class="business-grid"></div>
-    </section>
+const grid = document.getElementById("businessGrid");
+const pageMessage = document.getElementById("pageMessage");
+const retryButton = document.getElementById("retryButton");
+const liveStatus = document.getElementById("liveStatus");
 
-    <section class="section">
-      <div class="panel">
-        <h2 style="color:var(--gold);margin-top:0">
-          📢 Know a Business That Deserves Recognition?
-        </h2>
+let currentCompetition = null;
+let businesses = [];
+let leaderboard = [];
+let loading = false;
 
-        <p>
-          Help businesses reach more people by sharing this competition
-          with your friends, customers and community.
-        </p>
+function headers(extra = {}) {
+  return {
+    "apikey": SUPABASE_KEY,
+    "Authorization": "Bearer " + SUPABASE_KEY,
+    ...extra
+  };
+}
 
-        <button id="sharePage" class="btn btn-gold" type="button">
-          SHARE THIS COMPETITION
-        </button>
-      </div>
-    </section>
+async function request(path, options = {}) {
+  const response = await fetch(API + path, {
+    ...options,
+    headers: headers(options.headers || {})
+  });
 
-  </main>
+  const text = await response.text();
+  let result = null;
 
-  <footer class="footer">
-    <strong>KULZZY RADIO NETWORK</strong>
+  try {
+    result = text ? JSON.parse(text) : null;
+  } catch {
+    result = text;
+  }
 
-    <p>Celebrating Lives Everyday</p>
+  if (!response.ok) {
+    const message =
+      result && result.message
+        ? result.message
+        : "Request failed (" + response.status + ")";
 
-    <p>
-      <a href="https://kulzzyradio.com" target="_blank" rel="noopener">
-        Visit Kulzzy Radio
-      </a>
-    </p>
+    throw new Error(message);
+  }
 
-    <p>Business Champion of the Week</p>
-  </footer>
+  return result;
+}
 
-  <script>
-    "use strict";
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
 
-    /*
-      KULZZY RADIO — BUSINESS CHAMPION OF THE WEEK
+function formatDate(value) {
+  if (!value) return "Not specified";
 
-      Public read access uses Supabase REST directly.
-      No external Supabase JavaScript library is required.
-      Existing database records are preserved.
-    */
+  const date = new Date(value);
 
-    const SUPABASE_URL =
-      "https://qliohhpxpcybawkkuwra.supabase.co";
+  if (Number.isNaN(date.getTime())) return "Not specified";
 
-    const SUPABASE_KEY =
-      "sb_publishable_p25JoH3NXHjBO2gRBlfgAQ_GejS3jtr";
+  return date.toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
 
-    const API = SUPABASE_URL + "/rest/v1";
+function newVisitorKey() {
+  const keyName = "bc_visitor_key";
 
-    const competitionStatus =
-      document.getElementById("competitionStatus");
+  try {
+    let key = localStorage.getItem(keyName);
 
-    const businessStatus =
-      document.getElementById("businessStatus");
-
-    const businessGrid =
-      document.getElementById("businessGrid");
-
-    let currentCompetition = null;
-    let businesses = [];
-
-    function escapeHTML(value) {
-      return String(value ?? "").replace(/[&<>"']/g, function (char) {
-        return {
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;",
-          "'": "&#39;"
-        }[char];
-      });
+    if (!key) {
+      key = crypto.randomUUID();
+      localStorage.setItem(keyName, key);
     }
 
-    function safeURL(value) {
-      if (!value) return "";
+    return key;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
 
-      try {
-        const url = new URL(String(value));
+function getSupportCount(businessId) {
+  const row = leaderboard.find(item =>
+    String(
+      item.business_id ??
+      item.id ??
+      item.bc_business_id ??
+      ""
+    ) === String(businessId)
+  );
 
-        if (url.protocol === "https:" || url.protocol === "http:") {
-          return url.href;
-        }
-      } catch (_) {}
+  if (!row) return null;
 
-      return "";
+  const count =
+    row.valid_clicks ??
+    row.support_count ??
+    row.total_clicks ??
+    row.click_count ??
+    row.clicks ??
+    row.completed_clicks;
+
+  return count == null ? null : Number(count);
+}
+
+function getBusinessOrder(a, b) {
+  const countA = getSupportCount(a.id);
+  const countB = getSupportCount(b.id);
+
+  if (countA !== null && countB !== null) {
+    return countB - countA;
+  }
+
+  return 0;
+}
+
+function renderBusinesses() {
+  if (!businesses.length) {
+    grid.innerHTML =
+      '<div class="empty">No participating businesses yet.</div>';
+    return;
+  }
+
+  const sorted = [...businesses].sort(getBusinessOrder);
+
+  grid.innerHTML = sorted.map((business, index) => {
+    const name = escapeHTML(business.business_name);
+    const description = escapeHTML(business.description || "");
+    const image = business.image_url
+      ? escapeHTML(business.image_url)
+      : "";
+
+    const count = getSupportCount(business.id);
+
+    const imageHTML = image
+      ? `<img class="business-image"
+          src="${image}"
+          alt="${name}"
+          loading="lazy"
+          onerror="this.style.display='none'">`
+      : "";
+
+    return `
+      <article class="business">
+        ${imageHTML}
+        <div class="business-content">
+          <h3 class="business-name">${name}</h3>
+
+          ${description
+            ? `<p class="description">${description}</p>`
+            : ""}
+
+          <div class="rank">
+            RANK: #${index + 1}
+            ${count !== null ? " · SUPPORTS: " + count : ""}
+          </div>
+
+          <button
+            class="support"
+            data-business-id="${escapeHTML(business.id)}"
+            ${!currentCompetition ? "disabled" : ""}>
+            SUPPORT THIS BUSINESS
+          </button>
+
+          <div class="message" id="message-${escapeHTML(business.id)}"></div>
+
+          <button
+            class="share"
+            data-share-id="${escapeHTML(business.id)}">
+            SHARE BUSINESS
+          </button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  grid.querySelectorAll("[data-business-id]").forEach(button => {
+    button.addEventListener("click", () => {
+      supportBusiness(button.dataset.businessId, button);
+    });
+  });
+
+  grid.querySelectorAll("[data-share-id]").forEach(button => {
+    button.addEventListener("click", () => {
+      shareBusiness(button.dataset.shareId);
+    });
+  });
+}
+
+async function loadCompetition() {
+  const now = new Date().toISOString();
+
+  const rows = await request(
+    "/bc_competitions?select=id,title,starts_at,ends_at,status,winner_business_id" +
+    "&status=eq.active" +
+    "&starts_at=lte." + encodeURIComponent(now) +
+    "&ends_at=gte." + encodeURIComponent(now) +
+    "&order=starts_at.desc&limit=1"
+  );
+
+  currentCompetition = rows && rows.length ? rows[0] : null;
+
+  const panel = document.getElementById("competitionPanel");
+
+  if (!currentCompetition) {
+    panel.hidden = true;
+    liveStatus.textContent = "NO ACTIVE COMPETITION";
+    return;
+  }
+
+  panel.hidden = false;
+
+  document.getElementById("competitionTitle").textContent =
+    currentCompetition.title || "BUSINESS CHAMPION OF THE WEEK";
+
+  document.getElementById("competitionDates").textContent =
+    "START: " + formatDate(currentCompetition.starts_at) +
+    "  |  END: " + formatDate(currentCompetition.ends_at);
+
+  liveStatus.textContent = "● COMPETITION LIVE";
+}
+
+async function loadBusinesses() {
+  businesses = await request(
+    "/bc_businesses?select=id,business_name,whatsapp_number,description,image_url,advertisement_url,is_active,created_at" +
+    "&is_active=eq.true&order=created_at.desc&limit=100"
+  );
+
+  try {
+    leaderboard = await request("/bc_leaderboard?select=*&limit=500");
+  } catch {
+    leaderboard = [];
+  }
+
+  renderBusinesses();
+}
+
+async function loadPage() {
+  if (loading) return;
+
+  loading = true;
+  retryButton.hidden = true;
+  pageMessage.textContent = "";
+
+  try {
+    await loadCompetition();
+    await loadBusinesses();
+
+    if (!currentCompetition) {
+      pageMessage.textContent = "No active competition right now.";
     }
+  } catch (error) {
+    console.error(error);
 
-    function formatDate(value) {
-      if (!value) return "Not specified";
+    pageMessage.textContent =
+      "Could not load data: " + error.message;
 
-      const date = new Date(value);
+    retryButton.hidden = false;
 
-      if (Number.isNaN(date.getTime())) {
-        return "Not specified";
-      }
-
-      return date.toLocaleString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit"
-      });
+    if (!businesses.length) {
+      grid.innerHTML =
+        '<div class="error">Businesses could not be loaded.</div>';
     }
-
-    async function supabaseGet(table, query) {
-      const controller = new AbortController();
-
-      const timeout = setTimeout(function () {
-        controller.abort();
-      }, 15000);
-
-      try {
-        const response = await fetch(
-          API + "/" + table + "?" + query,
-          {
-            method: "GET",
-            headers: {
-              "apikey": SUPABASE_KEY,
-              "Authorization": "Bearer " + SUPABASE_KEY,
-              "Accept": "application/json"
-            },
-            cache: "no-store",
-            signal: controller.signal
-          }
-        );
-
-        const raw = await response.text();
-
-        let result;
-
-        try {
-          result = raw ? JSON.parse(raw) : null;
-        } catch (_) {
-          throw new Error(
-            "Supabase returned an unreadable response for " + table + "."
-          );
-        }
-
-        if (!response.ok) {
-          const message =
-            result &&
-            (result.message || result.details || result.hint);
-
-          throw new Error(
-            "Database error (" + response.status + "): " +
-            (message || "Unable to read " + table + ".")
-          );
-        }
-
-        if (!Array.isArray(result)) {
-          throw new Error(
-            "Unexpected database response for " + table + "."
-          );
-        }
-
-        return result;
-
-      } catch (error) {
-        if (error.name === "AbortError") {
-          throw new Error(
-            "The database took too long to respond. Check your connection and try again."
-          );
-        }
-
-        throw error;
-
-      } finally {
-        clearTimeout(timeout);
-      }
-    }
-
-    function showError(element, message, retryFunction) {
-      element.className = "loading error";
-
-      element.replaceChildren();
-
-      const text = document.createElement("div");
-      text.textContent = message;
-      element.appendChild(text);
-
-      if (retryFunction) {
-        const button = document.createElement("button");
-
-        button.type = "button";
-        button.className = "btn btn-outline retry";
-        button.textContent = "TRY AGAIN";
-        button.addEventListener("click", retryFunction);
-
-        element.appendChild(button);
-      }
-    }
-
-    function getCompetitionState(competition) {
-      const now = Date.now();
-      const start = competition.starts_at
-        ? new Date(competition.starts_at).getTime()
-        : null;
-
-      const end = competition.ends_at
-        ? new Date(competition.ends_at).getTime()
-        : null;
-
-      if (end !== null && !Number.isNaN(end) && now >= end) {
-        return "ended";
-      }
-
-      if (start !== null && !Number.isNaN(start) && now < start) {
-        return "upcoming";
-      }
-
-      return "active";
-    }
-
-    function renderCompetition(competition) {
-      competitionStatus.replaceChildren();
-
-      if (!competition) {
-        competitionStatus.className = "loading";
-        competitionStatus.textContent =
-          "No active or upcoming competition was found. Please check back soon.";
-        return;
-      }
-
-      currentCompetition = competition;
-
-      const state = getCompetitionState(competition);
-
-      const box = document.createElement("div");
-      box.className = "panel";
-
-      const title = document.createElement("h3");
-      title.className = "competition-title";
-      title.textContent =
-        competition.title || "Business Champion of the Week";
-
-      const badge = document.createElement("span");
-      badge.className = "status " + state;
-      badge.textContent = {
-        active: "● COMPETITION LIVE",
-        upcoming: "◷ COMING SOON",
-        ended: "■ COMPETITION ENDED"
-      }[state];
-
-      const description = document.createElement("p");
-      description.textContent = {
-        active:
-          "Explore the participating businesses and share your favourites.",
-        upcoming:
-          "This competition has been scheduled. Check back when it begins.",
-        ended:
-          "This competition has reached its scheduled end time."
-      }[state];
-
-      const dates = document.createElement("div");
-      dates.className = "dates";
-      dates.textContent =
-        "Starts: " + formatDate(competition.starts_at) +
-        " | Ends: " + formatDate(competition.ends_at);
-
-      box.append(title, badge, description, dates);
-      competitionStatus.className = "";
-      competitionStatus.appendChild(box);
-    }
-
-    function whatsappURL(number, businessName) {
-      const digits = String(number || "").replace(/\D/g, "");
-
-      if (!digits) return "";
-
-      let internationalNumber = digits;
-
-      /*
-        Nigerian local mobile numbers such as 09017759411
-        are converted to 2349017759411.
-      */
-      if (internationalNumber.startsWith("0") &&
-          internationalNumber.length === 11) {
-        internationalNumber = "234" + internationalNumber.slice(1);
-      }
-
-      const message =
-        "Hello " + (businessName || "business") +
-        ", I found your business on Kulzzy Radio Business Champion of the Week.";
-
-      return "https://wa.me/" + internationalNumber +
-        "?text=" + encodeURIComponent(message);
-    }
-
-    function renderBusinesses(items) {
-      businessGrid.replaceChildren();
-
-      if (!items.length) {
-        businessStatus.className = "loading";
-        businessStatus.textContent =
-          "No active businesses are available to display yet.";
-        return;
-      }
-
-      businessStatus.className = "loading success";
-      businessStatus.textContent =
-        items.length + " participating business" +
-        (items.length === 1 ? "" : "es") + " found.";
-
-      items.forEach(function (business) {
-        const card = document.createElement("article");
-        card.className = "business-card";
-
-        const imageURL = safeURL(business.image_url);
-        const advertisementURL = safeURL(business.advertisement_url);
-
-        if (imageURL) {
-          const image = document.createElement("img");
-
-          image.className = "business-image";
-          image.src = imageURL;
-          image.alt = business.business_name || "Business image";
-          image.loading = "lazy";
-
-          image.addEventListener("error", function () {
-            const placeholder = document.createElement("div");
-            placeholder.className = "image-placeholder";
-            placeholder.textContent = "🏢";
-            image.replaceWith(placeholder);
-          }, { once: true });
-
-          card.appendChild(image);
-
-        } else {
-          const placeholder = document.createElement("div");
-          placeholder.className = "image-placeholder";
-          placeholder.textContent = "🏢";
-          card.appendChild(placeholder);
-        }
-
-        const content = document.createElement("div");
-        content.className = "business-content";
-
-        const name = document.createElement("h3");
-        name.className = "business-name";
-        name.textContent = business.business_name || "Unnamed Business";
-
-        const description = document.createElement("p");
-        description.className = "business-description";
-        description.textContent =
-          business.description || "Contact this business to learn more.";
-
-        const actions = document.createElement("div");
-        actions.className = "business-actions";
-
-        const whatsapp = whatsappURL(
-          business.whatsapp_number,
-          business.business_name
-        );
-
-        if (whatsapp) {
-          const contact = document.createElement("a");
-
-          contact.className = "btn btn-green";
-          contact.href = whatsapp;
-          contact.target = "_blank";
-          contact.rel = "noopener noreferrer";
-          contact.textContent = "CONTACT THIS BUSINESS";
-
-          actions.appendChild(contact);
-        }
-
-        if (advertisementURL) {
-          const advert = document.createElement("a");
-
-          advert.className = "btn btn-outline";
-          advert.href = advertisementURL;
-          advert.target = "_blank";
-          advert.rel = "noopener noreferrer";
-          advert.textContent = "VIEW BUSINESS LINK";
-
-          actions.appendChild(advert);
-        }
-
-        const share = document.createElement("button");
-
-        share.type = "button";
-        share.className = "btn btn-gold";
-        share.textContent = "SHARE THIS BUSINESS";
-
-        share.addEventListener("click", async function () {
-          const shareText =
-            (business.business_name || "This business") +
-            " is featured on Kulzzy Radio Business Champion of the Week! " +
-            location.href;
-
-          try {
-            if (navigator.share) {
-              await navigator.share({
-                title: business.business_name || "Business Champion",
-                text: shareText,
-                url: location.href
-              });
-            } else if (navigator.clipboard &&
-                       navigator.clipboard.writeText) {
-              await navigator.clipboard.writeText(shareText);
-              alert("Business sharing text copied.");
-            } else {
-              window.prompt("Copy this text to share:", shareText);
-            }
-          } catch (error) {
-            if (error.name !== "AbortError") {
-              window.prompt("Copy this text to share:", shareText);
-            }
-          }
-        });
-
-        actions.appendChild(share);
-
-        content.append(name, description, actions);
-
-        card.appendChild(content);
-        businessGrid.appendChild(card);
-      });
-    }
-
-    async function loadCompetition() {
-      competitionStatus.className = "loading";
-      competitionStatus.textContent = "Connecting to the competition board…";
-
-      try {
-        const rows = await supabaseGet(
-          "bc_competitions",
-          "select=id,title,starts_at,ends_at,status,winner_business_id,created_at" +
-          "&status=eq.active" +
-          "&order=starts_at.asc" +
-          "&limit=20"
-        );
-
-        const now = Date.now();
-
-        rows.sort(function (a, b) {
-          const aStart = a.starts_at
-            ? new Date(a.starts_at).getTime()
-            : 0;
-
-          const bStart = b.starts_at
-            ? new Date(b.starts_at).getTime()
-            : 0;
-
-          const aUpcoming = aStart > now;
-          const bUpcoming = bStart > now;
-
-          if (aUpcoming !== bUpcoming) {
-            return aUpcoming ? 1 : -1;
-          }
-
-          return aStart - bStart;
-        });
-
-        renderCompetition(rows[0] || null);
-
-      } catch (error) {
-        console.error("Competition loading failed:", error);
-
-        showError(
-          competitionStatus,
-          "Competition could not be loaded. " + error.message,
-          loadCompetition
-        );
-      }
-    }
-
-    async function loadBusinesses() {
-      businessStatus.className = "loading";
-      businessStatus.textContent = "Loading participating businesses…";
-
-      try {
-        const rows = await supabaseGet(
-          "bc_businesses",
-          "select=id,business_name,whatsapp_number,description,image_url,advertisement_url,is_active,created_at" +
-          "&is_active=eq.true" +
-          "&order=created_at.desc" +
-          "&limit=100"
-        );
-
-        businesses = rows;
-        renderBusinesses(businesses);
-
-      } catch (error) {
-        console.error("Business loading failed:", error);
-
-        showError(
-          businessStatus,
-          "Businesses could not be loaded. " + error.message,
-          loadBusinesses
-        );
-      }
-    }
-
-    async function loadEverything() {
-      /*
-        Run independently: a competition error must not hide
-        business records, and a business error must not hide
-        the competition.
-      */
-      await Promise.allSettled([
-        loadCompetition(),
-        loadBusinesses()
-      ]);
-    }
-
-    document.getElementById("sharePage").addEventListener(
-      "click",
-      async function () {
-        const data = {
-          title: "Business Champion of the Week",
-          text:
-            "Support a business. Help it shine! Explore businesses featured by Kulzzy Radio.",
-          url: location.href
-        };
-
-        try {
-          if (navigator.share) {
-            await navigator.share(data);
-          } else if (navigator.clipboard &&
-                     navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(
-              data.text + " " + data.url
-            );
-
-            alert("Competition link copied. Share it with your friends.");
-          } else {
-            window.prompt("Copy this link to share:", location.href);
-          }
-        } catch (error) {
-          if (error.name !== "AbortError") {
-            window.prompt("Copy this link to share:", location.href);
-          }
-        }
-      }
-    );
-
-    /*
-      Safety net: if any unexpected JavaScript error occurs,
-      show it on the page instead of leaving a loading message.
-    */
-    window.addEventListener("error", function (event) {
-      console.error("Page error:", event.message);
-
-      if (competitionStatus.textContent.includes("Connecting")) {
-        showError(
-          competitionStatus,
-          "A page error occurred: " + event.message,
-          loadCompetition
-        );
-      }
-
-      if (businessStatus.textContent.includes("Loading")) {
-        showError(
-          businessStatus,
-          "A page error occurred: " + event.message,
-          loadBusinesses
-        );
-      }
+  } finally {
+    loading = false;
+  }
+}
+
+/*
+ * SUPPORT FLOW:
+ * 1. Start a tracking session.
+ * 2. Wait while the visitor remains on the page.
+ * 3. Complete the session through the existing RPC.
+ *
+ * Only a successful bc_complete_click response is treated
+ * as a completed support visit.
+ */
+async function supportBusiness(businessId, button) {
+  if (!currentCompetition) {
+    alert("There is no active competition.");
+    return;
+  }
+
+  const business = businesses.find(item =>
+    String(item.id) === String(businessId)
+  );
+
+  if (!business) return;
+
+  const message = document.getElementById("message-" + businessId);
+
+  button.disabled = true;
+  button.textContent = "RECORDING SUPPORT...";
+  message.textContent = "";
+
+  let sessionId = null;
+
+  try {
+    const result = await request("/rpc/bc_start_click", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify({
+        p_competition_id: currentCompetition.id,
+        p_business_id: business.id,
+        p_visitor_key: newVisitorKey()
+      })
     });
 
-    window.addEventListener("unhandledrejection", function (event) {
-      console.error("Unexpected page error:", event.reason);
+    sessionId = typeof result === "string"
+      ? result
+      : Array.isArray(result)
+        ? result[0]
+        : result?.id ?? result?.session_id;
+
+    if (!sessionId) {
+      throw new Error("The tracking session was not returned.");
+    }
+
+    message.textContent = "Please wait a moment...";
+
+    await new Promise(resolve => setTimeout(resolve, 8000));
+
+    const completed = await request("/rpc/bc_complete_click", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify({
+        p_session_id: sessionId
+      })
     });
 
-    loadEverything();
+    if (completed !== true && completed !== "true" &&
+        !(Array.isArray(completed) && completed[0] === true)) {
+      throw new Error("The visit was not confirmed as valid.");
+    }
 
-    /*
-      Refresh database records every 60 seconds so new
-      businesses and competition changes appear automatically.
-    */
-    setInterval(loadEverything, 60000);
-  </script>
+    message.textContent = "Support recorded successfully!";
+    button.textContent = "SUPPORT RECORDED";
+
+    await refreshLeaderboard();
+
+    return;
+
+  } catch (error) {
+    console.error(error);
+
+    message.textContent =
+      "Support could not be confirmed. Please try again.";
+
+    button.textContent = "TRY AGAIN";
+  } finally {
+    if (button.textContent !== "SUPPORT RECORDED") {
+      button.disabled = false;
+    }
+  }
+}
+
+async function refreshLeaderboard() {
+  try {
+    leaderboard = await request("/bc_leaderboard?select=*&limit=500");
+    renderBusinesses();
+  } catch (error) {
+    console.error("Ranking refresh failed:", error);
+  }
+}
+
+async function shareBusiness(businessId) {
+  const business = businesses.find(item =>
+    String(item.id) === String(businessId)
+  );
+
+  if (!business) return;
+
+  const shareData = {
+    title: business.business_name,
+    text: "Support " + business.business_name +
+      " in Business Champion of the Week!",
+    url: location.href
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(
+        shareData.text + " " + shareData.url
+      );
+      alert("Business link copied.");
+    } else {
+      prompt("Copy this link:", location.href);
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      prompt("Copy this link:", location.href);
+    }
+  }
+}
+
+retryButton.addEventListener("click", loadPage);
+
+loadPage();
+</script>
 
 </body>
 </html>
